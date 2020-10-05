@@ -1,3 +1,4 @@
+const fs = require("fs");
 const chalk = require("chalk");
 const { boolean } = require("yargs");
 const yargs = require("yargs");
@@ -45,7 +46,71 @@ class ContactService {
   }
 }
 
-const contactService = new ContactService();
+class FileContactService {
+  constructor() {
+    this.path = "./contacts.json";
+  }
+
+  read(callback) {
+    fs.readFile(this.path, (err, data) => {
+      if (err) {
+        return callback(err);
+      }
+
+      callback(null, JSON.parse(data));
+    });
+  }
+
+  get(callback) {
+    this.read((err, data) => {
+      if (err) {
+        return callback(err);
+      }
+
+      const contacts = data.map((ctc) => new Contact(ctc));
+      callback(null, contacts);
+    });
+  }
+
+  print() {
+    this.get((err, contacts) => {
+      if (err) {
+        console.error("Something bad happened");
+        console.error(err);
+        return;
+      }
+
+      contacts.forEach((contact) => {
+        console.log(contact.toString());
+      });
+    });
+  }
+
+  write(contacts, callback) {
+    fs.writeFile(this.path, JSON.stringify(contacts), (err) => {
+      callback(err);
+    });
+  }
+
+  add(firstName, lastName, callback) {
+    this.read((err, existingContacts) => {
+      if (err) {
+        return callback(err);
+      }
+
+      const existingIds = existingContacts.map((ctc) => ctc.id);
+      const newId = Math.max(...existingIds) + 1;
+
+      const addedContact = new Contact({ id: newId, firstName, lastName });
+
+      const contacts = [...existingContacts, addedContact];
+
+      this.write(contacts, callback);
+    });
+  }
+}
+
+const contactService = new FileContactService();
 
 yargs
   .scriptName("contacts.js")
@@ -63,6 +128,28 @@ yargs
     },
     () => {
       contactService.print();
+    }
+  )
+  .command(
+    "add",
+    "Add a contact",
+    (args) => {
+      args
+        .positional("firstName", {
+          type: "string",
+          required: true,
+          describe: "Contact's firstName",
+        })
+        .positional("lastName", {
+          type: "string",
+          required: true,
+          describe: "Contact's lastName",
+        });
+    },
+    (argv) => {
+      contactService.add(argv.firstName, argv.lastName, () => {
+        contactService.print();
+      });
     }
   )
   .help().argv;
