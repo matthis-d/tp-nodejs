@@ -108,6 +108,18 @@ class FileContactService {
       this.write(contacts, callback);
     });
   }
+
+  delete(id, callback) {
+    this.read((err, contacts) => {
+      if (err) {
+        return callback(err);
+      }
+
+      const updatedContacts = contacts.filter((contact) => contact.id !== id);
+
+      this.write(updatedContacts, callback);
+    });
+  }
 }
 
 const contactService = new FileContactService();
@@ -115,17 +127,16 @@ const contactService = new FileContactService();
 yargs
   .scriptName("contacts.js")
   .usage("$0 <cmd> [args]")
+  .option("color", {
+    alias: "c",
+    type: "boolean",
+    default: false,
+    describe: "Print list in colors",
+  })
   .command(
     "list",
     "List all contacts",
-    (args) => {
-      args.option("color", {
-        alias: "c",
-        type: "boolean",
-        default: false,
-        describe: "Print list in colors",
-      });
-    },
+    () => {},
     () => {
       contactService.print();
     }
@@ -149,6 +160,26 @@ yargs
     (argv) => {
       contactService.add(argv.firstName, argv.lastName, () => {
         contactService.print();
+      });
+    }
+  )
+  .command(
+    "delete",
+    "Delete a contact",
+    (args) => {
+      args.positional("id", {
+        type: "nummber",
+        required: true,
+        describe: "The id of the contact to delete",
+      });
+    },
+    (argv) => {
+      contactService.delete(argv.id, (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          contactService.print();
+        }
       });
     }
   )
