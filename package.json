@@ -1,0 +1,29 @@
+{
+  "name": "labs-nodejs",
+  "version": "1.0.0",
+  "description": "TPs de la formation NodeJS",
+  "main": "contacts.js",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "yargs": "^16.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matthis-d/tp-nodejs.git"
+  },
+  "keywords": [
+    "nodejs",
+    "zenika",
+    "labs"
+  ],
+  "author": "matthis-d",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/matthis-d/tp-nodejs/issues"
+  },
+  "homepage": "https://github.com/matthis-d/tp-nodejs#readme"
+}

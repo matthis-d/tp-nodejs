@@ -1,3 +1,7 @@
+const chalk = require("chalk");
+const { boolean } = require("yargs");
+const yargs = require("yargs");
+
 const data = require("./contacts.json");
 
 class Contact {
@@ -10,6 +14,14 @@ class Contact {
   }
 
   toString() {
+    const { color } = yargs.argv;
+
+    if (color) {
+      return `${chalk.blue(this.lastName.toUpperCase())} ${chalk.red(
+        this.firstName
+      )}`;
+    }
+
     return `${this.lastName.toUpperCase()} ${this.firstName}`;
   }
 }
@@ -34,4 +46,23 @@ class ContactService {
 }
 
 const contactService = new ContactService();
-contactService.print();
+
+yargs
+  .scriptName("contacts.js")
+  .usage("$0 <cmd> [args]")
+  .command(
+    "list",
+    "List all contacts",
+    (args) => {
+      args.option("color", {
+        alias: "c",
+        type: "boolean",
+        default: false,
+        describe: "Print list in colors",
+      });
+    },
+    () => {
+      contactService.print();
+    }
+  )
+  .help().argv;
