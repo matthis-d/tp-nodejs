@@ -1,7 +1,7 @@
 const data = require("./contacts.json");
 
 class Contact {
-  constructor(id, firstName, lastName, address, phone) {
+  constructor({ id, firstName, lastName, phone, address }) {
     this.id = id;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -17,13 +17,7 @@ class Contact {
 class ContactService {
   constructor() {
     this.contacts = data.map((elem) => {
-      const contact = new Contact(
-        elem.id,
-        elem.firstName,
-        elem.lastName,
-        elem.address,
-        elem.phone
-      );
+      const contact = new Contact(elem);
       return contact;
     });
   }
