@@ -1,4 +1,5 @@
 const fs = require("fs");
+const fsPromises = fs.promises;
 
 exports.writeCallback = function writeCallback(contacts, callback) {
   // Read contacts.json
@@ -38,4 +39,57 @@ exports.writeCallback = function writeCallback(contacts, callback) {
       });
     });
   });
+};
+
+exports.writePromises = function writePromises(contacts, callback) {
+  return fsPromises
+    .readFile("./contacts.json")
+    .then(() => fsPromises.copyFile("./contacts.json", "./contacts.json.back"))
+    .then(() =>
+      fsPromises
+        .writeFile("./contacts.json", JSON.stringify(contacts))
+        .catch(() => {
+          console.error("Could not write file, use backup");
+          return fsPromises.rename("./contacts.json.back", "./contacts.json");
+        })
+        .catch((renameErr) => {
+          console.error("Could not use backup");
+          throw renameErr;
+        })
+    )
+    .then(() =>
+      fsPromises
+        .unlink("./contacts.json.back")
+        .catch(() => console.warn("Could not delete backup"))
+        .finally(() => callback(null))
+    )
+    .catch((err) => {
+      callback(err);
+    });
+};
+
+exports.writeAsync = async function writeAsync(contacts, callback) {
+  try {
+    await fsPromises.readFile("./contacts.json");
+    await fsPromises.copyFile("./contacts.json", "./contacts.json.back");
+
+    try {
+      try {
+        await fsPromises.writeFile("./contacts.json", JSON.stringify(contacts));
+      } catch (e) {
+        console.error("Could not write file, use backup");
+        await fsPromises.rename("./contacts.json.back", "./contacts.json");
+      }
+    } catch (renameErr) {
+      console.error("Could not use backup");
+      throw renameErr;
+    }
+
+    return await fsPromises
+      .unlink("./contacts.json.back")
+      .catch(() => console.warn("Could not delete backup"))
+      .finally(() => callback(null));
+  } catch (err) {
+    callback(err);
+  }
 };

@@ -1,6 +1,6 @@
 const fs = require("fs");
 const Contact = require("./Contact");
-const { writeCallback } = require("./WriteImplem");
+const { writeCallback, writePromises } = require("./WriteImplem");
 
 class FileContactService {
   constructor() {
@@ -43,7 +43,7 @@ class FileContactService {
   }
 
   write(contacts, callback) {
-    writeCallback(contacts, callback);
+    writePromises(contacts, callback);
   }
 
   add(firstName, lastName, callback) {
