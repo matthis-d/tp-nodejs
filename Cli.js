@@ -1,5 +1,7 @@
 const yargs = require("yargs");
 
+const Server = require("./Server");
+
 function run(contactService) {
   yargs
     .scriptName("contacts.js")
@@ -58,6 +60,14 @@ function run(contactService) {
             contactService.print();
           }
         });
+      }
+    )
+    .command(
+      "serve",
+      "Start a web server",
+      () => {},
+      () => {
+        Server.start(contactService);
       }
     )
     .help().argv;
