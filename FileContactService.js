@@ -64,6 +64,23 @@ class FileContactService {
     });
   }
 
+  update(id, data, callback) {
+    this.read((err, existingContacts) => {
+      if (err) {
+        return callback(err);
+      }
+
+      const updatedContacts = existingContacts.map((contact) => {
+        if (contact.id === id) {
+          return { ...contact, ...data };
+        }
+        return contact;
+      });
+
+      this.write(updatedContacts, callback);
+    });
+  }
+
   delete(id, callback) {
     this.read((err, contacts) => {
       if (err) {
