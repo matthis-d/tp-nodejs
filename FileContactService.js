@@ -1,5 +1,6 @@
 const fs = require("fs");
 const Contact = require("./Contact");
+const { writeCallback } = require("./WriteImplem");
 
 class FileContactService {
   constructor() {
@@ -42,9 +43,7 @@ class FileContactService {
   }
 
   write(contacts, callback) {
-    fs.writeFile(this.path, JSON.stringify(contacts), (err) => {
-      callback(err);
-    });
+    writeCallback(contacts, callback);
   }
 
   add(firstName, lastName, callback) {
