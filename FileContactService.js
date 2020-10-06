@@ -1,6 +1,7 @@
 const fs = require("fs");
 const Contact = require("./Contact");
-const { writeCallback, writePromises } = require("./WriteImplem");
+const ReadImplems = require("./ReadImplems");
+const { writePromises } = require("./WriteImplem");
 
 class FileContactService {
   constructor() {
@@ -8,24 +9,11 @@ class FileContactService {
   }
 
   read(callback) {
-    fs.readFile(this.path, (err, data) => {
-      if (err) {
-        return callback(err);
-      }
-
-      callback(null, JSON.parse(data));
-    });
+    ReadImplems.stream(this.path, callback);
   }
 
   get(callback) {
-    this.read((err, data) => {
-      if (err) {
-        return callback(err);
-      }
-
-      const contacts = data.map((ctc) => new Contact(ctc));
-      callback(null, contacts);
-    });
+    ReadImplems.stream(this.path, callback);
   }
 
   print() {
@@ -89,6 +77,16 @@ class FileContactService {
       const updatedContacts = contacts.filter((contact) => contact.id !== id);
 
       this.write(updatedContacts, callback);
+    });
+  }
+
+  watch(callback) {
+    fs.watch(this.path, () => {
+      this.get((err, data) => {
+        if (!err) {
+          callback(null, data);
+        }
+      });
     });
   }
 }

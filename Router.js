@@ -1,4 +1,4 @@
-function router(app, contactService) {
+function router(app, contactService, io) {
   app.get("/hello", (req, res) => {
     res.status(200).send("Hello from router");
   });
@@ -19,9 +19,7 @@ function router(app, contactService) {
         return res.sendStatus(500);
       }
 
-      const foundContact = contacts.find(
-        (ctc) => ctc.id === parseInt(req.params.id, 10)
-      );
+      const foundContact = contacts.find((ctc) => ctc.id === parseInt(req.params.id, 10));
       if (foundContact) {
         return res.status(200).json(foundContact);
       }
@@ -51,6 +49,16 @@ function router(app, contactService) {
       }
       return res.sendStatus(204);
     });
+  });
+
+  io.on("connection", (socket) => {
+    console.log(`A client connected: ${socket.id}`);
+  });
+
+  contactService.watch((err, data) => {
+    if (!err) {
+      io.emit("contacts", data);
+    }
   });
 }
 
