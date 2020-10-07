@@ -12,6 +12,10 @@ function run(contactService) {
       default: false,
       describe: "Print list in colors",
     })
+    .option("cluster", {
+      type: "number",
+      describe: "Number of clusters to create",
+    })
     .command(
       "list",
       "List all contacts",

@@ -1,9 +1,15 @@
+const cluster = require("cluster");
+
 function router(app, contactService, io) {
   app.get("/hello", (req, res) => {
     res.status(200).send("Hello from router");
   });
 
   app.get("/rest/contacts", (req, res) => {
+    if (cluster.isWorker) {
+      console.log(`Handled by ${cluster.worker.id}`);
+    }
+
     contactService.get((err, contacts) => {
       if (err) {
         return res.sendStatus(500);

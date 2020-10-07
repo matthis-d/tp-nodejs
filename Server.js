@@ -1,4 +1,6 @@
 const http = require("http");
+const cluster = require("cluster");
+const yargs = require("yargs");
 // Load express and its middlwares
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -6,7 +8,11 @@ const socketIO = require("socket.io");
 
 const router = require("./Router");
 
-exports.start = function startServer(contactService) {
+function startServer(contactService) {
+  if (cluster.isWorker) {
+    console.log(`Starting server from worker ${cluster.worker.id}`);
+  }
+
   // Create an instance of express
   const app = express();
   const server = http.Server(app);
@@ -23,4 +29,20 @@ exports.start = function startServer(contactService) {
   server.listen(1234, () => {
     console.log("Server started on http://localhost:1234");
   });
+}
+
+exports.start = function start(contactService) {
+  const { cluster: nbCluster } = yargs.argv;
+
+  if (!nbCluster) {
+    return startServer(contactService);
+  }
+
+  if (cluster.isMaster) {
+    for (let i = 0; i < nbCluster; i++) {
+      cluster.fork();
+    }
+  } else {
+    startServer(contactService);
+  }
 };
