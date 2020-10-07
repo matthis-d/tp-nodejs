@@ -9,8 +9,8 @@ class ContactService {
     });
   }
 
-  get() {
-    return this.contacts;
+  get(callback) {
+    return callback(null, this.contacts);
   }
 
   print() {
